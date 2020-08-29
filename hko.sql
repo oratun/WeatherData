@@ -6,6 +6,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for hko
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `hko` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `PUB_TIME` datetime DEFAULT NULL,
   `STN` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `WINDDIRECTION` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

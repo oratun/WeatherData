@@ -1,4 +1,4 @@
-from db_config import config
+from settings import db_config
 from sqlalchemy import create_engine
 
 
@@ -10,4 +10,4 @@ from sqlalchemy import create_engine
 #     'db': 'test'
 # }
 
-engine = create_engine('mysql+mysqlconnector://{user}:{password}@{host}:{port}/{db}'.format(**config))
+engine = create_engine('mysql+mysqlconnector://{user}:{password}@{host}:{port}/{db}'.format(**db_config))
