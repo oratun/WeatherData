@@ -34,9 +34,12 @@ def run():
 
     for w in weather_list[2:]:
         row = [release_date] + [i if i else None for i in w.split(',')[:-1]]
-        print(len(row))
-        data.append(row)
-
+        if len(row) == 14:
+            data.append(row)
+        else:
+            # STN CP1数据有时会有15列，单独写到文件中
+            with open('cp1.csv', 'a') as f:
+                f.write(','.join(row)+'\n')
     csv_file_name = 'hko{}.csv'.format(release_date.strftime('%Y%m%d%H%M%S'))
     if not os.path.exists('csv/hko'):
         os.mkdir('csv/hko')
@@ -56,7 +59,7 @@ def run():
     (select 1 from hko where pub_time=%s and STN=%s)
     """
     res = psql.execute(sql, engine, params=data)
-    print('{} rows had been inserted to the hko. \n{}\n'.format(len(data), datetime.now()), res.rowcount)
+    print('{}/{} rows had been inserted to the hko. \n{}\n'.format(res.rowcount, len(data), datetime.now()))
 
 
 if __name__ == '__main__':

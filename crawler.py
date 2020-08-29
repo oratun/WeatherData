@@ -61,7 +61,7 @@ def run():
     (select 1 from pollutant where pub_time=%s and station_id=%s)
     """
     res = psql.execute(sql, engine, params=row_list)
-    print('{} rows had been inserted to the db. \n{}\n'.format(len(row_list), datetime.now()), res.rowcount)
+    print('{}/{} rows had been inserted to the db. \n{}\n'.format(res.rowcount, len(row_list), datetime.now()))
 
 
 if __name__ == '__main__':
