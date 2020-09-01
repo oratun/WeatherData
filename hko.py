@@ -39,7 +39,7 @@ def run():
         else:
             # STN CP1数据有时会有15列，单独写到文件中
             with open('cp1.csv', 'a') as f:
-                f.write(','.join(row)+'\n')
+                f.write(','.join(map(str, row))+'\n')
     csv_file_name = 'hko{}.csv'.format(release_date.strftime('%Y%m%d%H%M%S'))
     if not os.path.exists('csv/hko'):
         os.mkdir('csv/hko')
