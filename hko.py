@@ -23,10 +23,13 @@ def run():
     try:
         release_date = datetime.strptime(release_str, '%H:%M Hong Kong Time %d %b %Y')
     except ValueError:
-        date_list = release_str.split(' ')
-        date_list[-2] = datetime.now().strftime('%b')
-        release_str = ' '.join(date_list)
-        release_date = datetime.strptime(release_str, '%H:%M Hong Kong Time %d %b %Y')
+        try:
+            release_date = datetime.strptime(release_str, '%H:%M Hong Kong Time %d %B %Y')
+        except ValueError:
+            date_list = release_str.split(' ')
+            date_list[-2] = datetime.now().strftime('%b')
+            release_str = ' '.join(date_list)
+            release_date = datetime.strptime(release_str, '%H:%M Hong Kong Time %d %b %Y')
 
     data = []
     # columns = ['STN', 'WINDDIRECTION', 'WINDSPEED', 'GUST', 'TEMP', 'RH', 'MAXTEMP',
