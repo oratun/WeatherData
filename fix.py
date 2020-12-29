@@ -37,11 +37,13 @@ def gen_rows(path: str):
 def fix_hko(f_path):
     print(datetime.now())
     for rows in gen_rows(f_path):
+        data = []
         for row in rows:
             if len(row) != 14:
                 print('数据存在问题', row)
                 continue
             row.extend((row[0], row[1]))
+            data.append(row)
         sql = """
         insert into hko (pub_time, STN, WINDDIRECTION, WINDSPEED, GUST, TEMP, RH, MAXTEMP, MINTEMP, GRASSTEMP, 
         GRASSMINTEMP, VISIBILITY, PRESSURE, TEMPDIFFERENCE) 
@@ -49,26 +51,28 @@ def fix_hko(f_path):
         where not exists
         (select 1 from hko where pub_time=%s and STN=%s)
         """
-        insert_rows(sql, rows)
+        insert_rows(sql, data)
     print(datetime.now())
 
 
 def fix_pollutant(f_path):
     print(datetime.now())
     for rows in gen_rows(f_path):
+        data = []
         rows = rows[1:]
         for row in rows:
             if len(row) != 9:
                 print('数据存在问题', row)
                 continue
             row.extend((row[0], row[-2]))
+            data.append(row)
         sql = """
         insert into pollutant (pub_time, NO2, O3, SO2, CO, PM10, `PM2.5`, station_id, station_name) 
         select %s, %s, %s, %s, %s, %s, %s, %s, %s from dual
         where not exists
         (select 1 from pollutant where pub_time=%s and station_id=%s)
         """
-        insert_rows(sql, rows)
+        insert_rows(sql, data)
     print(datetime.now())
 
 
