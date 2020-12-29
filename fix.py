@@ -1,3 +1,4 @@
+# coding:utf-8
 """
 使用缓存的csv文件补上数据库缺失数据
 """
@@ -37,6 +38,8 @@ def fix_hko(f_path):
     print(datetime.now())
     for rows in gen_rows(f_path):
         for row in rows:
+            if len(rows) != 14:
+                continue
             row.extend((row[0], row[1]))
         sql = """
         insert into hko (pub_time, STN, WINDDIRECTION, WINDSPEED, GUST, TEMP, RH, MAXTEMP, MINTEMP, GRASSTEMP, 
@@ -54,6 +57,8 @@ def fix_pollutant(f_path):
     for rows in gen_rows(f_path):
         rows = rows[1:]
         for row in rows:
+            if len(rows) != 14:
+                continue
             row.extend((row[0], row[-2]))
         sql = """
         insert into pollutant (pub_time, NO2, O3, SO2, CO, PM10, `PM2.5`, station_id, station_name) 
