@@ -39,6 +39,7 @@ def fix_hko(f_path):
     for rows in gen_rows(f_path):
         for row in rows:
             if len(rows) != 14:
+                print(f_path, '数据存在问题', rows)
                 continue
             row.extend((row[0], row[1]))
         sql = """
@@ -58,6 +59,7 @@ def fix_pollutant(f_path):
         rows = rows[1:]
         for row in rows:
             if len(rows) != 14:
+                print(f_path, '数据存在问题', rows)
                 continue
             row.extend((row[0], row[-2]))
         sql = """
