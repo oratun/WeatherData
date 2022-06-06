@@ -41,11 +41,11 @@ def run():
         # break
 
     csv_file_name = 'pollutant{}.csv'.format(datetime.now().strftime('%Y%m%d%H%M%S'))
-    if not os.path.exists('csv'):
-        os.mkdir('csv')
+    if not os.path.exists('../csv'):
+        os.mkdir('../csv')
 
     # 写入数据库前, 保存csv文件备份
-    data.to_csv(os.path.join('csv', csv_file_name), index=False)
+    data.to_csv(os.path.join('../csv', csv_file_name), index=False)
     # data.to_sql('pollutant', con=engine, if_exists='append', index=False, method='multi')
     print('成功保存csv文件,', csv_file_name)
 

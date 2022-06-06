@@ -44,11 +44,11 @@ def run():
             with open('cp1.csv', 'a') as f:
                 f.write(','.join(map(str, row))+'\n')
     csv_file_name = 'hko{}.csv'.format(release_date.strftime('%Y%m%d%H%M%S'))
-    if not os.path.exists('csv/hko'):
-        os.mkdir('csv/hko')
+    if not os.path.exists('../csv/hko'):
+        os.mkdir('../csv/hko')
 
     # 写入数据库前, 保存csv文件备份
-    csv_writer = csv.writer(open(os.path.join('csv/hko', csv_file_name), 'w'))
+    csv_writer = csv.writer(open(os.path.join('../csv/hko', csv_file_name), 'w'))
     csv_writer.writerows(data)
     print('成功保存csv文件,', csv_file_name)
 
