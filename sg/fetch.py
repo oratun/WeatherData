@@ -4,16 +4,14 @@ from collections import defaultdict
 import datetime
 
 import requests
+from requests.packages import urllib3
 import pandas.io.sql as psql
 
 from db_utils import engine
 from mail import send_mail
 from utils import retry
 
-
-def get_json(url: str):
-    resp = requests.get(url).json()
-    return resp
+urllib3.disable_warnings()
 
 
 @retry()
