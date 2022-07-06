@@ -1,5 +1,5 @@
 cssselect==1.1.0
-lxml==4.6.5
+lxml==4.9.1
 mysql-connector-python==8.0.20
 numpy==1.21.0
 pandas==1.0.3
