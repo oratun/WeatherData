@@ -9,5 +9,5 @@ from sqlalchemy import create_engine
 #     'port': 3306,
 #     'db': 'test'
 # }
-
-engine = create_engine('mysql+mysqlconnector://{user}:{password}@{host}:{port}/{db}'.format(**db_config))
+sa_url = 'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{db}'.format(**db_config)
+engine = create_engine(sa_url)
