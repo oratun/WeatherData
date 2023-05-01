@@ -75,7 +75,7 @@ def run(hours=12):
                 resp = requests.post(data_url, data=urlencode(params),
                                      headers={'Content-Type': 'application/x-www-form-urlencoded'},
                                      timeout=5)
-            except requests.exceptions.ReadTimeout:
+            except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
                 logger.error('request timeout, url: {}, params: {}'.format(data_url, params))
                 continue
             if not resp.ok:
