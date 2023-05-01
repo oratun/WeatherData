@@ -1,29 +1,47 @@
-使用 Python 获取香港每日实时AQI和气温等数据，保存到mysql数据库中，同时保存一份CSV数据备用。
+~~使用 Python 获取香港每日实时AQI和气温等数据，保存到mysql数据库中，同时保存一份CSV数据备用。~~
 
-## 安装依赖
-pip install -r requirements.txt
+通过 Python 获取新加坡气象网站上的实时污染物和气象数据，保存到MySQL数据库中。
+## HOW TO USE
+### CREATE MYSQL DATABASE & TABLE
+you can find the sql files in the directory sg/
+- ~~hko.sql~~
+- ~~pollutant.sql~~
+- sg_pollutant.sql
+- sg_weather.sql
+- sg_visibility.sql
 
-## 创建数据表
-创建MYSQL数据表
-hko.sql
-pollutant.sql
-## 指定数据库配置
-vim db_config.py
+### ADD CONFIGURE FILE
+add settings.py which contains the following code to the directory weatherdata/
 ```python
+# mysql info must be specified 
 config = {
-    'user': 'username',
-    'password': 'pwd',
-    'host': 'ip',
-    'port': 3306,
-    'db': 'test'
+    'user': 'username', # your mysql username
+    'password': 'pwd',  # your mysql password
+    'host': 'ip',     # your mysql host
+    'port': 3306,      # your mysql port
+    'db': 'test'  # your mysql database
 }
+# optional config [smtp server and email info] for receiving error message
+MAIL_SERVER_HOST = ''
+MAIL_SERVER_USER = ''
+MAIL_SERVER_PASSWORD = ''
+mail_to = [
+    '',
+]
 ```
 
-## 运行
-通过linux crontab 命令运行定时任务  
-其中AQI数据脚本(run.sh)每天运行两次，气温数据(hko.sh)每五分钟运行一次。  
+### RUN DOCKER CONTAINER
+```shell
+# first run, git clone project to directory <weatherdata>
+cd weatherdata && sudo docker build -t wd:1.0.0 .
+# run docker container
+sudo docker-compose up -d 
+````
+
+### SCHEDULE TASK
+```shell
+# run scheduled tasks by linux crontab   
 crontab -e  
-0 0 * * * /usr/bin/zsh /opt/air/run.sh >> /opt/air/log.log 2>&1 &  
-0 12 * * * /usr/bin/zsh /opt/air/run.sh >> /opt/air/log.log 2>&1 &  
-*/5 * * * * /usr/bin/zsh /opt/air/hko.sh >> /opt/air/hko_log.log 2>&1 &
+# run docker service per 8 hours
+0 */8 * * * /usr/bin/zsh /opt/weatherdata/sg/sg.sh >> /opt/weatherdata/log.log 2>&1 &
 
