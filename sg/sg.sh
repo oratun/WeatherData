@@ -1,6 +1,6 @@
 # !/bin/sh
 # pollutant
-cd /opt/AirHongKong
+cd /opt/weatherdata
 source venv/bin/activate
 which python3
 python3 -m sg.fetch

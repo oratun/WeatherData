@@ -1,16 +1,21 @@
 import datetime
 import json
+import logging
 import re
 import time
 import traceback
 from collections import defaultdict
+from urllib.parse import urlencode
 
 import pandas.io.sql as psql
+import requests.exceptions
 from pyquery import PyQuery as PQ
 
 from db_utils import engine
 from mail import send_mail
 from utils import retry
+
+logger = logging.getLogger(__name__)
 
 stations = {'Paya Lebar': 'S06', 'Macritchie Reservoir': 'S07', 'Lower Peirce Reservoir': 'S08',
             'Jurong (North)': 'S101', 'Semakau Island': 'S102', 'Admiralty': 'S104', 'Admiralty West': 'S105',
@@ -30,7 +35,7 @@ stations = {'Paya Lebar': 'S06', 'Macritchie Reservoir': 'S07', 'Lower Peirce Re
             'Pasir Ris (Central)': 'S94'}
 
 
-@retry()
+# @retry()
 def run(hours=12):
     """
     因为不是所有的站点都有所有的数据, 所以需要分别爬取这几个页面，获得有该项数据的站点名称；
@@ -66,7 +71,14 @@ def run(hours=12):
                 data_url = 'http://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-ajax-{}-chart.php'.format(
                     url_key)
                 params = {"stationCode": station_code, "hrType": hours}
-            station_e = PQ(url=data_url, data=params, method='post')
+            try:
+                resp = requests.post(data_url, data=urlencode(params),
+                                     headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                                     timeout=5)
+            except requests.exceptions.ReadTimeout:
+                logger.error('request timeout, url: {}, params: {}'.format(data_url, params))
+                continue
+            station_e = PQ(resp.text)
             station_data = json.loads(station_e('p').html())
             if station_data:
                 # {"temp": "26.6", "time": "16 Apr"}
@@ -87,7 +99,7 @@ def run(hours=12):
                         visibility[(station, time_series[i])].update(item)
                     else:
                         weather[(station, time_series[i])].update(item)
-            time.sleep(0.1)
+            time.sleep(0.2)
     with engine.connect() as connection:
         if weather:
             rows = [(*k, *(v.get(i) for i in ['temp', 'rh', 'windSpeedKpr', 'windDirection'])) for k, v in
@@ -117,8 +129,8 @@ def run(hours=12):
 
 if __name__ == '__main__':
     try:
-        run()
-    except Exception:
+        run(24)
+    except RuntimeError:
         subject = 'sg-weather数据获取出错'
         content = traceback.format_exc()
         send_mail(
