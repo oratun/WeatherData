@@ -1,0 +1,12 @@
+version: '3'
+services:
+  sg:
+    container_name: sg
+    hostname: sg
+    build: .
+    restart: "no"
+#    network_mode: host
+    volumes:
+      - ./:/WeatherData
+    command: "python3 -m sg.observation"
+    working_dir: /WeatherData
