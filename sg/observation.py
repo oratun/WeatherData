@@ -78,6 +78,9 @@ def run(hours=12):
             except requests.exceptions.ReadTimeout:
                 logger.error('request timeout, url: {}, params: {}'.format(data_url, params))
                 continue
+            if not resp.ok:
+                logger.error(f'request failed, url: {data_url}, params: {params}, status_code: {resp.status_code}')
+                continue
             station_e = PQ(resp.text)
             station_data = json.loads(station_e('p').html())
             if station_data:

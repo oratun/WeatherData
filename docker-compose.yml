@@ -1,11 +1,20 @@
 version: '3'
 services:
-  sg:
-    container_name: sg
-    hostname: sg
-    build: .
+  pollutant:
+    container_name: pollutant
+    hostname: pollutant
+    image: wd:1.0.0  # cd weatherdata && docker build -t wd:1.0.0 .
     restart: "no"
-#    network_mode: host
+    volumes:
+      - ./:/WeatherData
+    command: "python3 -m sg.fetch"
+    working_dir: /WeatherData
+
+  weather:
+    container_name: weather
+    hostname: weather
+    image: wd:1.0.0
+    restart: "no"
     volumes:
       - ./:/WeatherData
     command: "python3 -m sg.observation"
