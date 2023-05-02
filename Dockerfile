@@ -6,7 +6,7 @@ ENV TZ=Asia/Shanghai \
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone \
     && dpkg-reconfigure --frontend noninteractive tzdata \
-    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists/*
 
 # 设置 python 环境变量
 ENV PYTHONUNBUFFERED 1
@@ -18,6 +18,8 @@ WORKDIR /WeatherData
 # 将 requirements.txt 复制到容器的 code 目录
 ADD requirements.txt /WeatherData/requirements.txt
 # 更新 pip & 安装库
-RUN pip install pip -U && pip install -r requirements.txt -U
+RUN pip install pip --no-cache-dir -U -i https://mirrors.aliyun.com/pypi/simple/ && \
+    pip install --no-cache-dir -r requirements.txt -U -i https://mirrors.aliyun.com/pypi/simple/ \
+
 # 将当前目录复制到容器
 #ADD ./WeatherData /WeatherData/
