@@ -1,13 +1,12 @@
+import datetime
 import traceback
 import uuid
 from collections import defaultdict
-import datetime
 
 import requests
 from requests.packages import urllib3
-import pandas.io.sql as psql
 
-from db_utils import engine
+from db_utils import execute_many
 from mail import send_mail
 from utils import retry
 
@@ -34,18 +33,13 @@ def run(uid: str = ''):
     # [location, dt, 'PM25', 'PM10', 'SO2', 'O3', 'CO', 'NO2']
     # ['North', datetime.datetime(2022, 6, 2, 14, 0), 15.0, 33.0, 4.0, 8.0, 5.0, 0.0]
     rows = [(*k, *(i[1] for i in v)) for k, v in data.items()]
-    # for row in rows:
-    #     row.extend(row[-6:])
     sql = """
     insert into sg_pollutant (STN, PUB_TIME, PM25, PM10, SO2, O3, CO, NO2) 
     values(%s, %s, %s, %s, %s, %s, %s, %s)
     on duplicate key update 
     PM25=values(PM25), PM10=values(PM10), SO2=values(SO2), O3=values(O3), CO=values(CO), NO2=values(NO2)    
     """
-    with engine.connect() as connection:
-        res = psql.execute(sql, connection, params=rows)
-    print('{}/{} rows had been inserted to the sg_pollutant. \n{}\n'.format(res.rowcount, len(rows),
-                                                                            datetime.datetime.now()))
+    execute_many('sg_pollutant', sql, rows)
 
 
 if __name__ == '__main__':
