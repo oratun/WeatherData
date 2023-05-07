@@ -7,11 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pandas = "^2.0.0"
-sqlalchemy = "^1.4.16"
 pyquery = "1.4.1"
-mysql-connector-python = "^8.0.32"
 requests = "^2.28.2"
+pymysql = "^1.0.3"
 
 
 [build-system]

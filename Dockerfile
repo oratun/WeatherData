@@ -15,11 +15,18 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /WeatherData
 WORKDIR /WeatherData
 
-# 将 requirements.txt 复制到容器的 code 目录
-ADD requirements.txt /WeatherData/requirements.txt
-# 更新 pip & 安装库
-RUN pip install pip --no-cache-dir -U -i https://mirrors.aliyun.com/pypi/simple/ && \
-    pip install --no-cache-dir -r requirements.txt -U -i https://mirrors.aliyun.com/pypi/simple/
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python && \
+    cd /usr/local/bin && \
+    ln -s /opt/poetry/bin/poetry && \
+    poetry config virtualenvs.create false
+
+# Copy poetry.lock* in case it doesn't exist in the repo
+COPY ./pyproject.toml ./poetry.lock* /WeatherData/
+
+# Allow installing dev dependencies to run tests
+ARG INSTALL_DEV=false
+RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; else poetry install --no-root --no-dev ; fi"
 
 # 将当前目录复制到容器
 #ADD ./WeatherData /WeatherData/
