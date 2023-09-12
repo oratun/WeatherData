@@ -17,10 +17,10 @@ urllib3.disable_warnings()
 def run(uid: str = ''):
     uid = uid or uuid.uuid4()
     ts_url = f"https://www.haze.gov.sg/api/UnixTime/GetTime/{uid}"
-    ts = requests.get(ts_url, verify=False).text
+    ts = requests.get(ts_url, verify=False, timeout=300).text
 
     json_url = f"https://www.haze.gov.sg/api/airquality/jsondata/{ts}"
-    res = requests.get(json_url, verify=False).json()
+    res = requests.get(json_url, verify=False, timeout=300).json()
 
     data = defaultdict(list)
     for pollutant, ptype in zip(['Chart1HRPM25', 'ChartPM10', 'ChartSO2', 'ChartO3', 'ChartCO', 'ChartNO2'],
