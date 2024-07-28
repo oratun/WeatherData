@@ -14,6 +14,13 @@ from mail import send_mail
 
 logger = logging.getLogger(__name__)
 
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive"
+}
+
 stations = {'Paya Lebar': 'S06', 'Macritchie Reservoir': 'S07', 'Lower Peirce Reservoir': 'S08',
             'Jurong (North)': 'S101', 'Semakau Island': 'S102', 'Admiralty': 'S104', 'Admiralty West': 'S105',
             'Pulau Ubin': 'S106', 'East Coast Parkway': 'S107', 'Marina Barrage': 'S108', 'Ang Mo Kio': 'S109',
@@ -37,7 +44,7 @@ def run(hours=12):
     因为不是所有的站点都有所有的数据, 所以需要分别爬取这几个页面，获得有该项数据的站点名称；
     从stations字典里取出stationCode，调用ajax接口获取该站点过去12/24/48小时数据。
     """
-    page_url = 'http://www.weather.gov.sg/weather-currentobservations-{}/'
+    page_url = 'https://www.weather.gov.sg/weather-currentobservations-{}/'
     keys = [
         'rainfall',
         'temperature', 'humidity', 'wind',
@@ -50,7 +57,7 @@ def run(hours=12):
     for key in keys:
         url_key = 'relative-humidity' if key == 'humidity' else key
         url = page_url.format(url_key)
-        e = PQ(url=url)
+        e = PQ(url=url, headers=headers)
         if key == 'rainfall':
             pat = '.col-xs-2:gt(2):lt(9) li'
             for i in e(pat).items():
@@ -58,7 +65,8 @@ def run(hours=12):
                 get_station(url_key, station, hours, key, weather, visibility)
         else:
             for span in e('#sg_region_popover span'):
-                station = pattern.match(span.get('data-content')).group(1)
+                # station = pattern.match(span.get('data-content')).group(1)
+                station = span.get('id')
                 get_station(url_key, station, hours, key, weather, visibility)
     if weather:
         rows = [(*k, *(v.get(i) for i in ['rainfall', 'temp', 'rh', 'windSpeedKpr', 'windDirection'])) for k, v in
@@ -86,7 +94,8 @@ def run(hours=12):
 def get_station(url_key, station, hours, key, weather, visibility):
     if station == 'Clear Results':
         return
-    station_code = stations.get(station)
+    # station_code = stations.get(station)
+    station_code = station
     if not station_code:
         raise ValueError('station {} not found'.format(station))
     # 'http://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-ajax-rainfall-chart.php'
@@ -95,10 +104,10 @@ def get_station(url_key, station, hours, key, weather, visibility):
     # 'http://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-ajax-wind-chart.php'
     # 'http://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-ajax-visibility-chart.php'
     if url_key in ['visibility', 'rainfall']:
-        data_url = f'http://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-weather-current-observations-{url_key}-data.php'
+        data_url = f'https://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-weather-current-observations-{url_key}-data.php'
         params = {"station_code": station_code, "hrType": hours}
     else:
-        data_url = f'http://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-ajax-{url_key}-chart.php'
+        data_url = f'https://www.weather.gov.sg/wp-content/themes/wiptheme/page-functions/functions-ajax-{url_key}-chart.php'
         params = {"stationCode": station_code, "hrType": hours}
     try:
         resp = requests.post(data_url, data=urlencode(params),
@@ -144,7 +153,7 @@ def get_station(url_key, station, hours, key, weather, visibility):
 
 if __name__ == '__main__':
     try:
-        run(24)
+        run(48)
     except RuntimeError:
         subject = 'sg-weather数据获取出错'
         content = traceback.format_exc()
